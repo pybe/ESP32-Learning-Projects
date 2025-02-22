@@ -7,8 +7,16 @@
 
 #### Description: 
 
-ESP32 WROOM-32 Development Board TYPE-C Micro USB WiFi+Bluetooth Ultra-Low Power Consumption SPI Flash 32Mbits Wireless Module    
-CH340C TYPE-C 6PC
+- ESP32 WROOM-32 Development Board TYPE-C Micro USB WiFi+Bluetooth Ultra-Low Power Consumption SPI Flash 32Mbits Wireless Module    
+- CH340C TYPE-C 6PC  
+
+#### Text on Board & Chips  
+
+- ESP32-WROOM-32D  
+- XXOH32  
+- HW0394  
+- CH340C
+- AMS1117
 
 #### esptool.py output:
 
@@ -30,5 +38,9 @@ CH340C TYPE-C 6PC
 > Detected flash size: 4MB  
 > Hard resetting via RTS pin...  
 
+<img src="MainChip.jpg" alt="Main Chip" width="50%"/>  
   
+<img src="OtherChips.jpg" alt="Other Chips" width="50%"/>  
+
+
 
