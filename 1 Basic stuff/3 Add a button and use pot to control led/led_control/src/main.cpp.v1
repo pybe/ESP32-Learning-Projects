@@ -8,8 +8,7 @@ const int buttonPin = 15; // Pin where the button is connected
 
 int potValue = 0; // Variable to store the potentiometer value
 int buttonState = 0; // Variable to store the button state
-int lastButtonState = HIGH; // Variable to store the last button state
-bool ledOn = false; // Variable to store the LED state
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -25,24 +24,21 @@ void loop() {
    potValue = analogRead(potPin); // Read the potentiometer value
    buttonState = digitalRead(buttonPin); // Read the button state
 
-   if (buttonState == LOW && lastButtonState == HIGH) { // If button is pressed
-    ledOn = !ledOn; // Toggle the LED state
-   }
-   lastButtonState = buttonState; // Update the last button state
-
-   if (ledOn) {
+   if (buttonState == LOW) { // If button is pressed
     int ledBrightness = map(potValue, 0, 4095, 0, 255); // Map potentiometer value to LED brightness
     analogWrite(ledPin, ledBrightness); // Set LED brightness
-   } else {
-    analogWrite(ledPin, 0); // Turn off the LED
-   }
+    } else {
+      analogWrite(ledPin, 0); // Turn off the LED
+    }
 
     Serial.print("Potentiometer Value: ");
     Serial.print(potValue);
     Serial.print(" | Button State: ");
-    Serial.print(buttonState);
-    Serial.print(" | LED State: ");
-    Serial.println(ledOn);
+    Serial.println(buttonState);
 
     delay(100); // Small delay for stability
 }
+
+
+
+
