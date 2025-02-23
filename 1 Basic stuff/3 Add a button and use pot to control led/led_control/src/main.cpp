@@ -34,13 +34,13 @@ public:
         bool currentReading = digitalRead(pin);
         
         if (currentReading != lastState) {
-            lastDebounceTime = millis();
+            lastDebounceTime = millis();  // Reset timer when state changes
         }
 
-        if ((millis() - lastDebounceTime) > DEBOUNCE_DELAY) {
-            if (currentReading != state) {
-                state = currentReading;
-                if (state == LOW) {
+        if ((millis() - lastDebounceTime) > DEBOUNCE_DELAY) {  // Wait 50ms
+            if (currentReading != state) {  // If state is still different
+                state = currentReading;      // Accept the new state
+                if (state == LOW) {          // If button is pressed (LOW due to INPUT_PULLUP)
                     return true;
                 }
             }
