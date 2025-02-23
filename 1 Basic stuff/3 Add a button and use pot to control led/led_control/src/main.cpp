@@ -1,48 +1,89 @@
 #include <Arduino.h>
 
-// put function declarations here:
+// Pin definitions
+enum Pins {
+    POT_PIN = 32,
+    LED_PIN = 4,
+    BUTTON_PIN = 15
+};
 
-const int potPin = 32; // Pin where the potentiometer is connected
-const int ledPin = 4;  // Pin where the LED is connected
-const int buttonPin = 15; // Pin where the button is connected
+// Constants
+constexpr int POT_MAX_VALUE = 4095;
+constexpr int PWM_MAX_VALUE = 255;
+constexpr unsigned long DEBOUNCE_DELAY = 50; // milliseconds
 
-int potValue = 0; // Variable to store the potentiometer value
-int buttonState = 0; // Variable to store the button state
-int lastButtonState = HIGH; // Variable to store the last button state
-bool ledOn = false; // Variable to store the LED state
+class Button {
+private:
+    const uint8_t pin;
+    bool lastState;
+    bool state;
+    unsigned long lastDebounceTime;
+
+public:
+    Button(uint8_t buttonPin) : 
+        pin(buttonPin), 
+        lastState(HIGH), 
+        state(HIGH), 
+        lastDebounceTime(0) {}
+
+    void begin() {
+        pinMode(pin, INPUT_PULLUP);
+    }
+
+    bool wasPressed() {
+        bool currentReading = digitalRead(pin);
+        
+        if (currentReading != lastState) {
+            lastDebounceTime = millis();
+        }
+
+        if ((millis() - lastDebounceTime) > DEBOUNCE_DELAY) {
+            if (currentReading != state) {
+                state = currentReading;
+                if (state == LOW) {
+                    return true;
+                }
+            }
+        }
+
+        lastState = currentReading;
+        return false;
+    }
+};
+
+// Global variables
+Button button(BUTTON_PIN);
+bool ledOn = false;
 
 void setup() {
-  // put your setup code here, to run once:
-    pinMode(potPin, INPUT);
-    pinMode(ledPin, OUTPUT);
-    pinMode(buttonPin, INPUT_PULLUP); // Use internal pull-up resistor
-    Serial.begin(115200); // Initialize serial communication
+    pinMode(POT_PIN, INPUT);
+    pinMode(LED_PIN, OUTPUT);
+    button.begin();
+    Serial.begin(115200);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+    // Read and constrain potentiometer value
+    int potValue = constrain(analogRead(POT_PIN), 0, POT_MAX_VALUE);
+    
+    // Handle button press with debouncing
+    if (button.wasPressed()) {
+        ledOn = !ledOn;
+    }
 
-   potValue = analogRead(potPin); // Read the potentiometer value
-   buttonState = digitalRead(buttonPin); // Read the button state
+    // Update LED
+    if (ledOn) {
+        int ledBrightness = map(potValue, 0, POT_MAX_VALUE, 0, PWM_MAX_VALUE);
+        analogWrite(LED_PIN, ledBrightness);
+    } else {
+        analogWrite(LED_PIN, 0);
+    }
 
-   if (buttonState == LOW && lastButtonState == HIGH) { // If button is pressed
-    ledOn = !ledOn; // Toggle the LED state
-   }
-   lastButtonState = buttonState; // Update the last button state
-
-   if (ledOn) {
-    int ledBrightness = map(potValue, 0, 4095, 0, 255); // Map potentiometer value to LED brightness
-    analogWrite(ledPin, ledBrightness); // Set LED brightness
-   } else {
-    analogWrite(ledPin, 0); // Turn off the LED
-   }
-
+    // Debug output
     Serial.print("Potentiometer Value: ");
     Serial.print(potValue);
-    Serial.print(" | Button State: ");
-    Serial.print(buttonState);
     Serial.print(" | LED State: ");
     Serial.println(ledOn);
 
-    delay(100); // Small delay for stability
+    delay(10); // Reduced delay since we have proper debouncing
 }
